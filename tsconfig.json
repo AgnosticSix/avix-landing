@@ -1,0 +1,49 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["dom", "dom.iterable", "ES2022"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "allowJs": false,
+    "skipLibCheck": true,
+    /*
+     * Rigor de tipos.
+     *
+     * `noUncheckedIndexedAccess` y `exactOptionalPropertyTypes` quedan fuera a
+     * propósito: Next tipa los CSS Modules como `Record<string, string>`, de
+     * modo que con esas dos opciones cada `styles.loQueSea` pasa a ser
+     * `string | undefined` y obliga a sembrar comprobaciones sin valor en todo
+     * el marcado. Activarlas exigiría generar un `.d.ts` por archivo CSS, que es
+     * más maquinaria de la que este proyecto justifica.
+     */
+    "strict": true,
+    "noImplicitOverride": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "verbatimModuleSyntax": true,
+    "noEmit": true,
+    "incremental": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "forceConsistentCasingInFileNames": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
+  ],
+  "exclude": ["node_modules", "reference"]
+}
