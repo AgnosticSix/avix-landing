@@ -1,0 +1,30 @@
+.section {
+  position: relative;
+  z-index: 1;
+  padding: 130px 0 110px;
+}
+
+.container {
+  max-width: calc(var(--content-max-width) + var(--content-padding) * 2);
+  margin: 0 auto;
+  padding: 0 var(--content-padding);
+}
+
+.eyebrow {
+  font-family: var(--font-display);
+  font-size: 12px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+@media (max-width: 860px) {
+  .section {
+    padding: 80px 0;
+  }
+
+  .container {
+    max-width: calc(var(--content-max-width) + var(--content-padding-mobile) * 2);
+    padding: 0 var(--content-padding-mobile);
+  }
+}
