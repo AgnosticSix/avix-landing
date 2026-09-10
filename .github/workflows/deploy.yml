@@ -102,18 +102,51 @@ jobs:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
-      # Comprobación de humo: que producción responda.
+      # Comprobación de humo: que el despliegue responda.
       #
       # No verifica las métricas. `@vercel/analytics` inyecta su script tras
       # la hidratación, no en el HTML servido: comprobado sobre el HTML
       # prerenderizado, `_vercel/insights` no aparece ni con VERCEL=1. Hacen
       # falta un navegador y la pestaña de red. Ver README → Despliegue.
       #
-      # Sólo en producción: las previews pueden estar tras Deployment
-      # Protection y devolverían 401 a un curl sin credenciales.
+      # Con VERCEL_AUTOMATION_BYPASS_SECRET la comprobación atraviesa
+      # Deployment Protection y cubre también las previews. Sin él se
+      # conserva el comportamiento anterior: sólo producción.
       - name: Verificar que responde
-        if: github.ref_name == 'main'
+        env:
+          URL: ${{ steps.deploy.outputs.url }}
+          RAMA: ${{ github.ref_name }}
+          BYPASS: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
         run: |
-          CODE=$(curl -s -o /dev/null -w '%{http_code}' "${{ steps.deploy.outputs.url }}")
-          [ "$CODE" = "200" ] || { echo "La página respondió $CODE"; exit 1; }
-          echo "OK: responde 200."
+          if [ -z "$BYPASS" ] && [ "$RAMA" != "main" ]; then
+            echo "Sin secret de bypass: se omite en preview, donde Deployment"
+            echo "Protection interceptaría la peticion."
+            exit 0
+          fi
+
+          if [ -n "$BYPASS" ]; then
+            CODE=$(curl -s -o /dev/null -w '%{http_code}' \
+              -H "x-vercel-protection-bypass: $BYPASS" "$URL")
+          else
+            CODE=$(curl -s -o /dev/null -w '%{http_code}' "$URL")
+          fi
+
+          if [ "$CODE" = "200" ]; then
+            echo "OK: responde 200."
+            exit 0
+          fi
+
+          if [ "$CODE" = "302" ] || [ "$CODE" = "401" ]; then
+            echo "Respondio $CODE: Deployment Protection intercepto la peticion."
+            if [ -z "$BYPASS" ]; then
+              echo "Genera el secreto en Project Settings > Deployment Protection"
+              echo "> Protection Bypass for Automation y guardalo como el secret"
+              echo "VERCEL_AUTOMATION_BYPASS_SECRET."
+            else
+              echo "El secret esta definido pero no se acepto: comprueba que sea el vigente."
+            fi
+            exit 1
+          fi
+
+          echo "La pagina respondio $CODE."
+          exit 1
