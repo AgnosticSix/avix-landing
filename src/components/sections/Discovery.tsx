@@ -12,9 +12,11 @@ import { QuestionView } from './QuestionView';
 import {
   QUESTION_COUNT,
   buildMailBody,
+  buildMailSubject,
   buildSummary,
   initialQuizState,
   isLastStep,
+  isStepValid,
   missingNames,
   quizReducer,
 } from './quiz-state';
@@ -37,7 +39,7 @@ function readCampaignParams(): Record<string, string> {
  *
  * No hay servidor detrás: al terminar se compone un `mailto:` con las
  * respuestas. Es deliberado, porque mantiene la landing como sitio estático; el
- * día que haga falta un CRM, el punto a cambiar es `handleComplete`.
+ * día que haga falta un CRM, el punto a cambiar es `buildMailtoHref`.
  */
 export function Discovery() {
   const [state, dispatch] = useReducer(quizReducer, initialQuizState);
@@ -49,9 +51,13 @@ export function Discovery() {
     track('quiz_start');
   }, [state.started]);
 
+  // Se espera a `started` por el mismo motivo que `quiz_start`: sin esa
+  // condición el paso 1 se registraría en cada carga de la página, con quiz
+  // tocado o sin tocar, y dejaría de servir como referencia de abandono.
   useEffect(() => {
-    if (!state.completed) track('quiz_step', { step: state.stepIndex + 1 });
-  }, [state.stepIndex, state.completed]);
+    if (!state.started || state.completed) return;
+    track('quiz_step', { step: state.stepIndex + 1 });
+  }, [state.started, state.stepIndex, state.completed]);
 
   const question = QUIZ_QUESTIONS[state.stepIndex];
   const invalid = state.showValidation ? missingNames(state) : [];
@@ -63,7 +69,7 @@ export function Discovery() {
    * aquí evita mantenerlos en estado sólo para consultarlos una vez.
    */
   const buildMailtoHref = (): string => {
-    const subject = `Agendar diagnóstico AVIX — ${String(state.answers['empresa'] ?? '')}`;
+    const subject = buildMailSubject(state.answers);
     const campaign = readCampaignParams();
     const body = buildMailBody(state.answers, campaign);
     return `mailto:${siteConfig.contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
@@ -74,10 +80,15 @@ export function Discovery() {
       dispatch({ type: 'next' });
       return;
     }
-    track('quiz_complete', {
-      personas: String(state.answers['personas'] ?? ''),
-      sensible: String(state.answers['sensible'] ?? ''),
-    });
+    // El reductor rechaza `complete` mientras falte alguna respuesta
+    // obligatoria. Sin repetir aquí esa comprobación, el evento de conversión
+    // contaría los envíos fallidos y los volvería a contar en cada reintento.
+    if (isStepValid(state)) {
+      track('quiz_complete', {
+        personas: String(state.answers['personas'] ?? ''),
+        sensible: String(state.answers['sensible'] ?? ''),
+      });
+    }
     dispatch({ type: 'complete' });
   };
 

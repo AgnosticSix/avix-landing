@@ -48,7 +48,7 @@ function requiredNames(question: QuizQuestion): readonly string[] {
 }
 
 /** ¿Está respondida la pregunta actual? Las opcionales siempre lo están. */
-function isStepValid(state: QuizState): boolean {
+export function isStepValid(state: QuizState): boolean {
   const question = QUIZ_QUESTIONS[state.stepIndex];
   if (!question) return false;
   return requiredNames(question).every((name) => !isBlank(state.answers[name]));
@@ -127,17 +127,66 @@ export function buildSummary(answers: Readonly<Record<string, Answer>>): string 
   return parts.join(' ');
 }
 
+/**
+ * Topes de longitud del cuerpo del correo.
+ *
+ * El cuerpo viaja dentro de un `mailto:`, es decir, dentro de una URL. Varios
+ * gestores de correo —los de Windows entre ellos— truncan la dirección o se
+ * niegan a abrirla por encima de unos 2 KB, y sin ningún aviso: el usuario ve
+ * un borrador vacío o mutilado. Tres de las preguntas son `textarea` sin
+ * límite, así que el caso que importa —alguien que se explaya, o sea, un
+ * cliente interesado— es justo el que se pasaría.
+ *
+ * `MAX_ANSWER_LENGTH` evita que una sola respuesta se coma el presupuesto;
+ * `MAX_ENCODED_BODY_LENGTH` es el tope de verdad y se mide sobre el texto **ya
+ * codificado**, que es como viaja. Medirlo en claro no sirve: la proporción
+ * entre uno y otro no es fija —cada espacio y cada acento pasan a ocupar tres
+ * caracteres— y un párrafo en español llega a multiplicar por 2,4 su tamaño.
+ */
+const MAX_ANSWER_LENGTH = 300;
+const MAX_ENCODED_BODY_LENGTH = 1600;
+/** El asunto comparte URL con el cuerpo: interpola una respuesta y también se acota. */
+const MAX_SUBJECT_ANSWER_LENGTH = 80;
+
+/** Marca visible del recorte, para que nadie lo confunda con la respuesta. */
+const TRUNCATION_MARK = '… (recortado)';
+
+const clip = (value: string, limit: number): string =>
+  value.length > limit ? `${value.slice(0, limit)}${TRUNCATION_MARK}` : value;
+
+/** Recorta el cuerpo hasta que quepa codificado. Converge en pocas vueltas. */
+function fitEncoded(body: string): string {
+  let text = body;
+  while (text.length > 0 && encodeURIComponent(text).length > MAX_ENCODED_BODY_LENGTH) {
+    text = text.slice(0, Math.floor(text.length * 0.9));
+  }
+  return text === body ? body : `${text}${TRUNCATION_MARK}`;
+}
+
+/**
+ * Asunto del correo de contacto.
+ *
+ * Vive aquí y no en el componente porque comparte el presupuesto de la URL con
+ * el cuerpo: interpola la respuesta de «empresa», que es un campo libre, y sin
+ * acotarla se llevaba por delante el margen que el cuerpo ya respetaba.
+ */
+export function buildMailSubject(answers: Readonly<Record<string, Answer>>): string {
+  const company = String(answers['empresa'] ?? '');
+  return `Agendar diagnóstico AVIX — ${clip(company, MAX_SUBJECT_ANSWER_LENGTH)}`;
+}
+
 /** Cuerpo del correo de contacto: todas las respuestas en texto plano. */
 export function buildMailBody(
   answers: Readonly<Record<string, Answer>>,
   campaign: Readonly<Record<string, string>>,
 ): string {
   const lines = Object.entries(answers).map(
-    ([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`,
+    ([key, value]) =>
+      `${key}: ${clip(Array.isArray(value) ? value.join(', ') : value, MAX_ANSWER_LENGTH)}`,
   );
   const campaignLines = Object.entries(campaign)
     .filter(([, value]) => value)
     .map(([key, value]) => `${key}: ${value}`);
 
-  return [...lines, ...campaignLines].join('\n');
+  return fitEncoded([...lines, ...campaignLines].join('\n'));
 }
