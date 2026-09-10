@@ -10,7 +10,8 @@ sitio estático, con un fondo tridimensional en Three.js ligado al scroll.
 ## Requisitos
 
 - Node.js ≥ 22
-- pnpm 11 (`corepack enable` lo activa a partir del campo `packageManager`)
+- pnpm 12 — la versión exacta la fija `packageManager` en `package.json`,
+  y `corepack enable` la activa
 
 ## Puesta en marcha
 
