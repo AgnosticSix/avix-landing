@@ -13,6 +13,7 @@ import { Industries } from '@/components/sections/Industries';
 import { PainPoints } from '@/components/sections/PainPoints';
 import { Process } from '@/components/sections/Process';
 import { Team } from '@/components/sections/Team';
+import { serializeStructuredData } from '@/lib/structured-data';
 
 /**
  * Página única de AVIX.
@@ -25,6 +26,21 @@ import { Team } from '@/components/sections/Team';
 export default function HomePage() {
   return (
     <>
+      {/*
+        Datos estructurados. Van aquí y no en el layout porque el layout también
+        envuelve a `not-found.tsx`, que se sirve con `noindex`: describir la
+        entidad AVIX en una página que nadie debe indexar no aporta nada.
+
+        Un `<script>` es inerte para la maquetación —el navegador le aplica
+        `display: none`— y ni `body` es contenedor flex/grid ni hay selectores
+        `:nth-child` en el proyecto, así que añadir un hermano aquí no mueve
+        nada. Comprobado antes de insertarlo.
+      */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeStructuredData() }}
+      />
+
       <SceneController />
       <Backdrop />
       <TopNav />
