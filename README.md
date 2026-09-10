@@ -137,6 +137,13 @@ lint se publicaría igual, porque Vercel sólo ejecuta `next build`.
 Vercel no recibe ningún permiso sobre el repositorio; el enlace es un token en
 los secrets de GitHub: `VERCEL_TOKEN`, `VERCEL_ORG_ID` y `VERCEL_PROJECT_ID`.
 
+Hay un cuarto secret opcional, `VERCEL_AUTOMATION_BYPASS_SECRET`, que se genera
+en Project Settings → Deployment Protection → Protection Bypass for Automation.
+Con él, la comprobación final atraviesa la protección de despliegues y cubre
+también las previews; sin él sólo se comprueba producción, porque una preview
+protegida responde con una redirección al SSO de Vercel y el paso fallaría sin
+que nada estuviera roto.
+
 **El build lo hace Vercel, no el runner**, y por eso el despliegue no usa
 `--prebuilt` pese a ser lo que recomienda la documentación de Vercel para CI.
 Las métricas de la sección anterior se montan sólo si `process.env.VERCEL === '1'`
