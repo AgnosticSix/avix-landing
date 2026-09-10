@@ -25,13 +25,13 @@ import {
 
 import {
   EDGES,
+  LAST_SCROLL_SEGMENT,
   NODE_COLORS,
   NODE_IDS,
   NODE_POSITIONS,
   NODE_SIZES,
   PALETTE,
   SATELLITES,
-  SCROLL_SEGMENTS,
   type NodeId,
 } from './isotype';
 import { LEGACY_LIGHT_SCALE, POINT_LIGHT_FALLOFF, applyLegacyColorPipeline } from './legacy-compat';
@@ -296,20 +296,29 @@ export function createAvixScene(canvas: HTMLCanvasElement): AvixScene | null {
   const traversal = createLightTraversal();
   const scratch = new Vector3();
   const cameraTarget = new Vector3();
+  // Vectores de trabajo del tramo recto. Se reutilizan porque `pointOnEdge` se
+  // llama siete veces por fotograma y crear vectores ahí alimentaría al
+  // recolector de basura dentro del bucle que menos puede permitírselo.
+  const scratchFrom = new Vector3();
+  const scratchTo = new Vector3();
   let previousNow = 0;
 
   /** Interpola entre dos nodos siguiendo la arista que los une. */
   const pointOnEdge = (from: NodeId, to: NodeId, t: number, out: Vector3): Vector3 => {
+    // La luz está parada en un nodo: no hay arista que recorrer. Es el caso
+    // más frecuente —toda la fase `hold`— y no necesita ninguna interpolación.
+    if (from === to) return out.set(...NODE_POSITIONS[from]);
+
     const forward = curves.get(edgeKey(from, to));
     if (forward) return forward.getPointAt(t, out);
 
     const backward = curves.get(edgeKey(to, from));
     if (backward) return backward.getPointAt(1 - t, out);
 
-    // `from` y `to` no son adyacentes (la luz está parada en un nodo): recta.
+    // `from` y `to` no son adyacentes: recta entre ambos.
     return out.lerpVectors(
-      new Vector3(...NODE_POSITIONS[from]),
-      new Vector3(...NODE_POSITIONS[to]),
+      scratchFrom.set(...NODE_POSITIONS[from]),
+      scratchTo.set(...NODE_POSITIONS[to]),
       t,
     );
   };
@@ -330,7 +339,7 @@ export function createAvixScene(canvas: HTMLCanvasElement): AvixScene | null {
    * panea y se acerca a lo largo de la página.
    */
   const moveCamera = (progress: number): void => {
-    const t = clamp01(progress / (SCROLL_SEGMENTS.length - 1));
+    const t = clamp01(progress / LAST_SCROLL_SEGMENT);
     const azimuth = lerp(-0.85, 0.85, t);
     const radius = lerp(21, 13, t);
     const elevation = 0.62;

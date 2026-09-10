@@ -77,6 +77,15 @@ export const SCROLL_SEGMENTS: readonly (readonly [NodeId, NodeId])[] = [
   ['C', 'B'],
 ];
 
+/**
+ * Índice del último tramo: el recorrido de la cámara va de 0 a este valor.
+ *
+ * Lo consumen tanto la escena como el bucle de scroll. Se deriva de
+ * `SCROLL_SEGMENTS` a propósito — escrito a mano, añadir un tramo dejaría el
+ * nuevo fuera del recorrido sin que nada fallara.
+ */
+export const LAST_SCROLL_SEGMENT = SCROLL_SEGMENTS.length - 1;
+
 /** Cubos satélite flotantes: `[x, y, z, escala, color]`. */
 export const SATELLITES: readonly (readonly [number, number, number, number, number])[] = [
   [3.2, 4.6, -2.4, 0.55, PALETTE.slate],
