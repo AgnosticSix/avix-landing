@@ -29,7 +29,10 @@ export interface SiteConfig {
   readonly name: string;
   readonly url: string;
   readonly locale: string;
-  /** La pregunta de marca, sin el nombre delante. Es la única fuente del titular. */
+  /**
+   * La pregunta de marca, sin el nombre delante. Es la concatenación de
+   * `TAGLINE_PARTS`, de donde el hero saca también su titular.
+   */
   readonly tagline: string;
   /** La promesa de dos frases. Aparece en el pie y en la vista previa social. */
   readonly promise: string;
@@ -45,7 +48,27 @@ export interface SiteConfig {
 }
 
 const NAME = 'AVIX';
-const TAGLINE = '¿Qué parte de tu trabajo podría hacer la IA por ti?';
+
+/**
+ * La pregunta de marca, partida por donde arranca el resaltado del titular.
+ *
+ * `HERO.headline` consume estas dos mitades y `tagline` es su concatenación,
+ * de modo que el `<title>`, la tarjeta social y el `<h1>` no pueden acabar
+ * diciendo cosas distintas. Estuvieron duplicadas y divergieron: el titular
+ * decía «¿Qué trabajo podría…» y la etiqueta de título «¿Qué parte de tu
+ * trabajo podría…».
+ *
+ * Se unificó sobre la forma corta, que es la del titular, y no al revés: el
+ * `<h1>` está compuesto a dos líneas —el resaltado empieza la segunda— y la
+ * forma larga lo parte en tres, desbaratando el hero. Ver la comprobación de
+ * paridad de AGENTS.md antes de alargarla.
+ */
+export const TAGLINE_PARTS = {
+  lead: '¿Qué trabajo podría ',
+  highlight: 'hacer la IA por ti?',
+} as const;
+
+const TAGLINE = `${TAGLINE_PARTS.lead}${TAGLINE_PARTS.highlight}`;
 const PROMISE = 'Primero entendemos. Después automatizamos.';
 
 export const siteConfig: SiteConfig = {

@@ -1,12 +1,17 @@
+import { TAGLINE_PARTS } from '@/config/site';
+
 /**
  * Contenido del hero.
  *
  * El titular está partido en dos porque la segunda mitad se resalta en cian y
- * es la que recibe el efecto de descifrado.
+ * es la que recibe el efecto de descifrado. Las dos mitades **no** se escriben
+ * aquí: salen de `TAGLINE_PARTS`, que es también de donde sale `tagline` y con
+ * ella el `<title>` y la tarjeta social. Cuando estaban duplicadas divergieron,
+ * y el `<h1>` acabó preguntando algo distinto que la etiqueta de título.
  */
 export const HERO = {
   eyebrow: 'IA aplicada a empresas serias',
-  headline: { lead: '¿Qué trabajo podría ', highlight: 'hacer la IA por ti?' },
+  headline: TAGLINE_PARTS,
   lead: 'AVIX encuentra las tareas que consumen tiempo todos los días y construye sistemas que pueden hacer ese trabajo automática e inteligentemente.',
   support:
     'Desde revisar información y dar seguimiento hasta actualizar sistemas, preparar documentos o detectar pendientes.',
