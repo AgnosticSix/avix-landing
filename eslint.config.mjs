@@ -60,6 +60,14 @@ const config = [
       'jsx-a11y/no-autofocus': 'off',
     },
   },
+  {
+    /*
+     * Los scripts de `scripts/` son herramientas de línea de comandos: su
+     * salida por consola es la interfaz, no un resto de depuración.
+     */
+    files: ['scripts/**/*.mjs'],
+    rules: { 'no-console': 'off' },
+  },
 ];
 
 export default config;

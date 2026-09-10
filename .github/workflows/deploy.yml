@@ -1,0 +1,102 @@
+# CI/CD de la landing: comprobaciones en cada push y PR, despliegue sólo
+# cuando pasan. No usa la integración de Vercel para GitHub; el enlace con
+# Vercel es un token guardado en los secrets del repositorio.
+name: CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+# Un push nuevo cancela el pipeline anterior de la misma rama: no tiene
+# sentido desplegar un commit que ya quedó atrás.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Comprobaciones
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # pnpm/action-setup lee la versión del campo packageManager de
+      # package.json, así que no hay un número que mantener aquí.
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # typecheck + lint + formato. Es el filtro que la integración nativa de
+      # Vercel no puede aplicar: allí un fallo de formato despliega igual.
+      - run: pnpm check
+
+      # El build aquí es un ensayo: detecta fallos de prerenderizado antes de
+      # tocar nada publicado. El artefacto se descarta; el build que cuenta lo
+      # hace Vercel.
+      - run: pnpm build
+
+  deploy:
+    name: Despliegue
+    needs: check
+    # Los pull requests sólo se comprueban. Se despliega al integrar.
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.ref_name == 'main' && 'production' || 'preview' }}
+      url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      # Sin --prebuilt a propósito: este job no instala dependencias porque
+      # `vercel deploy` se limita a subir el código; el build ocurre en Vercel.
+      #
+      # Construir aquí y subir .vercel/output ahorraría un minuto, pero
+      # `layout.tsx` monta Analytics y SpeedInsights sólo si
+      # `process.env.VERCEL === '1'` en el momento del prerenderizado. Esa
+      # variable la inyecta Vercel, y en un build propio depende de que
+      # `vercel pull` haya traído las variables de sistema. Si no lo hace, el
+      # sitio se despliega sin métricas y sin ningún error: justo el tipo de
+      # fallo silencioso del que avisa AGENTS.md.
+      - id: deploy
+        # TODO: fijar la versión del CLI (`npx vercel --version`) cuando el
+        # pipeline pase en verde por primera vez.
+        run: |
+          URL=$(npx --yes vercel@latest deploy \
+            ${{ github.ref_name == 'main' && '--prod' || '' }} \
+            --token="$VERCEL_TOKEN" --yes)
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "Desplegado en $URL"
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      # Comprobación de humo: que producción responda.
+      #
+      # No verifica las métricas. `@vercel/analytics` inyecta su script tras
+      # la hidratación, no en el HTML servido: comprobado sobre el HTML
+      # prerenderizado, `_vercel/insights` no aparece ni con VERCEL=1. Hacen
+      # falta un navegador y la pestaña de red. Ver README → Despliegue.
+      #
+      # Sólo en producción: las previews pueden estar tras Deployment
+      # Protection y devolverían 401 a un curl sin credenciales.
+      - name: Verificar que responde
+        if: github.ref_name == 'main'
+        run: |
+          CODE=$(curl -s -o /dev/null -w '%{http_code}' "${{ steps.deploy.outputs.url }}")
+          [ "$CODE" = "200" ] || { echo "La página respondió $CODE"; exit 1; }
+          echo "OK: responde 200."

@@ -125,6 +125,42 @@ desde `/_vercel/*`, una ruta que en local devolvería 404.
 El proyecto prerenderiza todas sus rutas, así que funciona en cualquier hosting
 estático. En Vercel no necesita configuración: `pnpm build` y listo.
 
+### El pipeline
+
+`.github/workflows/deploy.yml` comprueba y despliega en cada push: `develop` va
+a una URL de preview y `main` a producción. Los pull requests sólo se comprueban.
+El despliegue está detrás de `pnpm check`, que es la razón de usar GitHub Actions
+en lugar de la integración de Vercel para GitHub: allí un fallo de formato o de
+lint se publicaría igual, porque Vercel sólo ejecuta `next build`.
+
+Vercel no recibe ningún permiso sobre el repositorio; el enlace es un token en
+los secrets de GitHub: `VERCEL_TOKEN`, `VERCEL_ORG_ID` y `VERCEL_PROJECT_ID`.
+
+**El build lo hace Vercel, no el runner**, y por eso el despliegue no usa
+`--prebuilt` pese a ser lo que recomienda la documentación de Vercel para CI.
+Las métricas de la sección anterior se montan sólo si `process.env.VERCEL === '1'`
+durante el prerenderizado; en un build propio esa variable depende de que
+`vercel pull` haya traído las variables de sistema, y si no lo hace el sitio se
+publica sin métricas y sin ningún error.
+
+Conviene saber que **esa regresión no se puede detectar con `curl`**: los
+componentes de `@vercel/analytics` inyectan su `<script>` tras la hidratación,
+así que `_vercel/insights` no aparece en el HTML servido ni siquiera cuando todo
+funciona. Comprobarlo exige un navegador —la petición a
+`/_vercel/insights/script.js` en la pestaña de red— o el panel de Analytics de
+Vercel. El workflow sólo verifica que producción responda 200; un paso con
+navegador headless sería la forma de automatizarlo.
+
+### Despliegue manual
+
+`scripts/deploy-vercel.mjs` publica por la API REST, sin CLI ni integración de
+Git. Sirve para crear el proyecto la primera vez —el workflow necesita que ya
+exista— y para publicar si Actions no está disponible:
+
+```bash
+VERCEL_TOKEN=xxx node scripts/deploy-vercel.mjs   # --preview para una preview
+```
+
 Las cabeceras de seguridad se definen en `next.config.ts`:
 `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options` y
 `Permissions-Policy`.
