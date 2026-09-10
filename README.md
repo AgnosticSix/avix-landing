@@ -159,8 +159,12 @@ Git. Sirve para crear el proyecto la primera vez —el workflow necesita que ya
 exista— y para publicar si Actions no está disponible:
 
 ```bash
-VERCEL_TOKEN=xxx node scripts/deploy-vercel.mjs   # --preview para una preview
+VERCEL_TOKEN=xxx VERCEL_ORG_ID=yyy node scripts/deploy-vercel.mjs
 ```
+
+Publica en producción; con `--preview` al final, en una URL de preview. El
+proyecto en Vercel se llama `avix-sitio` y vive en el equipo `avix-soluciones`,
+de ahí que el identificador del equipo sea obligatorio.
 
 Las cabeceras de seguridad se definen en `next.config.ts`:
 `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options` y

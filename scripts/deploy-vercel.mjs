@@ -13,13 +13,13 @@
 // GitHub Actions no está disponible.
 //
 // Uso:
-//   VERCEL_TOKEN=xxx node scripts/deploy-vercel.mjs             # a producción
-//   VERCEL_TOKEN=xxx node scripts/deploy-vercel.mjs --preview   # a preview
+//   VERCEL_TOKEN=xxx VERCEL_ORG_ID=yyy node scripts/deploy-vercel.mjs
+//   ... con --preview al final para publicar en una URL de preview.
 //
 // Variables de entorno:
 //   VERCEL_TOKEN    (obligatoria) token de https://vercel.com/account/tokens
-//   VERCEL_PROJECT  nombre del proyecto en Vercel (por defecto: avix-landing)
-//   VERCEL_TEAM_ID  id del equipo, si el proyecto no es de la cuenta personal
+//   VERCEL_ORG_ID   (obligatoria) id del equipo; el proyecto vive en uno
+//   VERCEL_PROJECT  nombre del proyecto en Vercel (por defecto: avix-sitio)
 
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
@@ -28,12 +28,21 @@ import { join } from 'node:path';
 
 const API = 'https://api.vercel.com';
 const TOKEN = process.env.VERCEL_TOKEN;
-const PROJECT = process.env.VERCEL_PROJECT ?? 'avix-landing';
-const TEAM_ID = process.env.VERCEL_TEAM_ID;
+// El proyecto en Vercel se llama `avix-sitio`, no como el repositorio: con
+// el nombre equivocado esto no falla, crea un proyecto nuevo y despliega ahí.
+const PROJECT = process.env.VERCEL_PROJECT ?? 'avix-sitio';
+// El proyecto vive en un equipo, así que el identificador es obligatorio.
+// VERCEL_ORG_ID es el nombre que usan el CLI y los secrets del workflow.
+const TEAM_ID = process.env.VERCEL_TEAM_ID ?? process.env.VERCEL_ORG_ID;
 const TARGET = process.argv.includes('--preview') ? undefined : 'production';
 
 if (!TOKEN) {
   console.error('Falta VERCEL_TOKEN. Créalo en https://vercel.com/account/tokens');
+  process.exit(1);
+}
+
+if (!TEAM_ID) {
+  console.error('Falta VERCEL_ORG_ID: sin él se desplegaría en la cuenta personal.');
   process.exit(1);
 }
 
