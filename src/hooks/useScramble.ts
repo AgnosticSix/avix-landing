@@ -90,26 +90,42 @@ export function useScramble(
   { delayMs = 0, durationMs = DEFAULT_DURATION_MS, enabled = true }: ScrambleOptions = {},
 ): () => void {
   const wordsRef = useRef<Word[] | null>(null);
+  /** Texto con el que se construyeron las palabras que hay en el DOM. */
+  const builtTextRef = useRef<string | null>(null);
   const runIdRef = useRef(0);
   const frameRef = useRef<number | null>(null);
+
+  /**
+   * Alterna entre el texto real y la capa de glifos.
+   *
+   * Vive fuera de `run` para que la limpieza del efecto también pueda devolver
+   * el texto a la vista: si el efecto se desmonta con la capa levantada, el
+   * texto real se quedaría en `visibility: hidden` para siempre — React ya no
+   * gobierna esos nodos y ningún render posterior lo arreglaría.
+   */
+  const paintOverlay = (visible: boolean): void => {
+    for (const word of wordsRef.current ?? []) {
+      word.base.style.visibility = visible ? 'hidden' : '';
+      word.overlay.style.visibility = visible ? '' : 'hidden';
+    }
+  };
 
   const run = (delay: number): void => {
     const element = ref.current;
     if (!element || !enabled) return;
 
-    wordsRef.current ??= buildWords(element, text);
+    // Se reconstruyen las palabras si el texto cambió: las del DOM son las del
+    // texto anterior, y animarlas contra la longitud del nuevo desincroniza el
+    // revelado (los caracteres se fijan antes de tiempo, o nunca).
+    if (!wordsRef.current || builtTextRef.current !== text) {
+      wordsRef.current = buildWords(element, text);
+      builtTextRef.current = text;
+    }
     const words = wordsRef.current;
 
     const runId = (runIdRef.current += 1);
     const startAt = performance.now() + delay;
     const totalLength = text.length;
-
-    const paintOverlay = (visible: boolean): void => {
-      for (const word of words) {
-        word.base.style.visibility = visible ? 'hidden' : '';
-        word.overlay.style.visibility = visible ? '' : 'hidden';
-      }
-    };
 
     const step = (now: number): void => {
       if (runIdRef.current !== runId) return;
@@ -159,6 +175,10 @@ export function useScramble(
       cancelled = true;
       runIdRef.current += 1;
       if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
+      // Si el efecto se va con el descifrado a medias, la capa de glifos queda
+      // levantada y el titular real, oculto. Devolverlo a la vista es lo único
+      // que puede restaurarlo.
+      paintOverlay(false);
     };
     // `run` se recrea en cada render pero sólo lee refs; las dependencias reales
     // son las que determinan *cuándo* debe arrancar el efecto.
