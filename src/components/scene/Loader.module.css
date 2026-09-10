@@ -21,6 +21,17 @@
   display: none;
 }
 
+/**
+ * Sin JavaScript la cortina nunca llega a `data-state='done'` —ese estado sólo
+ * lo alcanza un efecto de cliente— y taparía la página entera: es una capa
+ * opaca a pantalla completa. Misma salvaguarda que `Reveal.module.css`.
+ */
+@media (scripting: none) {
+  .loader {
+    display: none;
+  }
+}
+
 .tagline {
   font-family: var(--font-display);
   font-size: 12px;

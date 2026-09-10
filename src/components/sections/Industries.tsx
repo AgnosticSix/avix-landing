@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 
-import { useState } from 'react';
+import { useRef, useState, type KeyboardEvent } from 'react';
 
 import { Reveal } from '@/components/ui/Reveal';
 import { Eyebrow, Section } from '@/components/ui/Section';
@@ -23,10 +23,49 @@ const FIRST_INDUSTRY = INDUSTRIES[0];
  */
 export function Industries() {
   const [activeKey, setActiveKey] = useState(FIRST_INDUSTRY.key);
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   const selectIndustry = (key: string): void => {
     setActiveKey(key);
     track('vertical_view', { vertical: key });
+  };
+
+  /**
+   * Teclado del patrón de pestañas: flechas para moverse entre ellas —dando la
+   * vuelta en los extremos— e `Inicio`/`Fin` para ir a la primera o la última.
+   *
+   * Los roles ARIA anuncian a un lector de pantalla que el grupo se recorre
+   * así; sin esto se anunciaba un comportamiento que el marcado no cumplía. El
+   * `tabIndex` móvil que las acompaña hace que el tabulador entre y salga del
+   * grupo de una vez, en lugar de detenerse en cada pestaña.
+   */
+  const onTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number): void => {
+    const last = INDUSTRIES.length - 1;
+    let next: number;
+
+    switch (event.key) {
+      case 'ArrowRight':
+        next = index === last ? 0 : index + 1;
+        break;
+      case 'ArrowLeft':
+        next = index === 0 ? last : index - 1;
+        break;
+      case 'Home':
+        next = 0;
+        break;
+      case 'End':
+        next = last;
+        break;
+      default:
+        return;
+    }
+
+    const industry = INDUSTRIES[next];
+    if (!industry) return;
+
+    event.preventDefault();
+    selectIndustry(industry.key);
+    tabRefs.current[next]?.focus();
   };
 
   return (
@@ -39,16 +78,21 @@ export function Industries() {
 
       <Reveal delay={0.2}>
         <div className={styles.tablist} role="tablist" aria-label="Sectores">
-          {INDUSTRIES.map(({ key, label }) => (
+          {INDUSTRIES.map(({ key, label }, index) => (
             <button
               key={key}
+              ref={(node) => {
+                tabRefs.current[index] = node;
+              }}
               type="button"
               role="tab"
               id={`tab-${key}`}
               aria-selected={key === activeKey}
               aria-controls={`panel-${key}`}
+              tabIndex={key === activeKey ? 0 : -1}
               className={styles.tab}
               onClick={() => selectIndustry(key)}
+              onKeyDown={(event) => onTabKeyDown(event, index)}
             >
               {label}
             </button>

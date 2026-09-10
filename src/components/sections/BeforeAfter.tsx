@@ -49,6 +49,11 @@ export function BeforeAfter() {
   const play = useCallback(() => {
     // Con movimiento reducido se muestra el resultado final sin animar.
     if (reducedMotion) {
+      // Puede haber temporizadores de una reproducción anterior: el valor de
+      // `usePrefersReducedMotion` sólo se corrige tras la hidratación, así que
+      // una primera pasada pudo arrancar antes. Sin cancelarlos volverían a
+      // encender los pasos uno a uno, justo delante de quien pidió no verlo.
+      clearTimers();
       setLitUpTo(STEP_COUNT - 1);
       setPlaying(false);
       return;
