@@ -61,6 +61,23 @@ jobs:
         with:
           node-version: 24
 
+      # Un secret ausente llega al CLI como `--token=` y lo que se ve es
+      # «You defined "--token", but it's missing a value», que no dice cuál
+      # falta ni dónde se configura.
+      - name: Comprobar los secrets
+        run: |
+          for v in VERCEL_TOKEN VERCEL_ORG_ID VERCEL_PROJECT_ID; do
+            if [ -z "${!v}" ]; then
+              echo "Falta el secret $v (Settings > Secrets and variables > Actions)."
+              echo "Ver README, seccion Despliegue."
+              exit 1
+            fi
+          done
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
       # Sin --prebuilt a propósito: este job no instala dependencias porque
       # `vercel deploy` se limita a subir el código; el build ocurre en Vercel.
       #
@@ -71,11 +88,11 @@ jobs:
       # `vercel pull` haya traído las variables de sistema. Si no lo hace, el
       # sitio se despliega sin métricas y sin ningún error: justo el tipo de
       # fallo silencioso del que avisa AGENTS.md.
+      # Version fijada: un CLI que cambia solo es un fallo que aparece sin
+      # que nadie haya tocado el repositorio.
       - id: deploy
-        # TODO: fijar la versión del CLI (`npx vercel --version`) cuando el
-        # pipeline pase en verde por primera vez.
         run: |
-          URL=$(npx --yes vercel@latest deploy \
+          URL=$(npx --yes vercel@59.15.1 deploy \
             ${{ github.ref_name == 'main' && '--prod' || '' }} \
             --token="$VERCEL_TOKEN" --yes)
           echo "url=$URL" >> "$GITHUB_OUTPUT"
