@@ -1,0 +1,179 @@
+.heading {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: #ffffff;
+  font-size: clamp(2.2rem, 5vw, 4rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin: 22px 0 0;
+  text-wrap: balance;
+}
+
+.tablist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 44px;
+}
+
+.tab {
+  font-family: var(--font-display);
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  padding: 12px 22px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  min-height: 44px;
+  transition:
+    background 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease;
+}
+
+.tab:hover {
+  border-color: rgba(0, 188, 212, 0.6);
+}
+
+.tab[aria-selected='true'] {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-bg);
+}
+
+.panelFrame {
+  margin-top: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: clamp(28px, 4vw, 48px);
+}
+
+.panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(24px, 5vw, 72px);
+  align-items: start;
+}
+
+/**
+ * `display: grid` de la regla anterior gana al `display: none` que el navegador
+ * aplica a `[hidden]`, así que sin esto los tres paneles se verían a la vez.
+ */
+.panel[hidden] {
+  display: none;
+}
+
+.panelTitle {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: #ffffff;
+  font-size: clamp(1.6rem, 3vw, 2.3rem);
+  line-height: 1.15;
+  margin: 0;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.panelBody {
+  font-size: 16px;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.panelDetail {
+  font-size: 16px;
+  color: var(--color-text-dim);
+  margin: 14px 0 0;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.tag {
+  font-family: var(--font-display);
+  font-size: 12px;
+  color: var(--color-text-muted);
+  border: 1px solid rgba(0, 188, 212, 0.35);
+  border-radius: 999px;
+  padding: 7px 13px;
+}
+
+.tagEscalates {
+  composes: tag;
+  border-color: rgba(205, 127, 50, 0.45);
+}
+
+.cta {
+  margin-top: 64px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 24px;
+  align-items: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 40px;
+}
+
+.ctaTitle {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: #ffffff;
+  font-size: clamp(1.3rem, 2.2vw, 1.7rem);
+  margin: 0;
+  line-height: 1.25;
+}
+
+.ctaBody {
+  font-size: 16px;
+  color: var(--color-text-dim);
+  margin: 8px 0 0;
+}
+
+.ctaButton {
+  background: var(--color-accent);
+  color: var(--color-bg);
+  font-weight: 600;
+  font-size: 15px;
+  padding: 15px 28px;
+  border-radius: 10px;
+  white-space: nowrap;
+  justify-self: start;
+}
+
+.ctaButton:hover {
+  background: var(--color-accent-bright);
+  color: var(--color-bg);
+}
+
+@media (max-width: 860px) {
+  .panel,
+  .cta {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .panelTitle {
+    font-size: 1.4rem;
+  }
+
+  .panelFrame {
+    padding: 22px;
+  }
+
+  .tab {
+    flex: 1 1 auto;
+    text-align: center;
+  }
+
+  .ctaButton {
+    width: 100%;
+    text-align: center;
+    box-sizing: border-box;
+  }
+}

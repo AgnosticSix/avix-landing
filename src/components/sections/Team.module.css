@@ -1,0 +1,130 @@
+.section {
+  padding: 130px 0 120px;
+  overflow: hidden;
+}
+
+.heading {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: #ffffff;
+  font-size: clamp(2rem, 4.4vw, 3.4rem);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  margin: 22px 0 0;
+  max-width: 22ch;
+  text-wrap: balance;
+}
+
+.intro {
+  color: var(--color-text-dim);
+  font-size: 17px;
+  margin: 20px 0 0;
+}
+
+.partners {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(24px, 5vw, 72px);
+  margin-top: 72px;
+  align-items: start;
+}
+
+/* La segunda columna baja para romper la simetría del par de retratos. */
+.partnerOffset {
+  margin-top: clamp(40px, 8vw, 110px);
+}
+
+.portraitFrame {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(180deg, rgba(0, 32, 64, 0.5), rgba(5, 11, 20, 0.9));
+}
+
+.portrait {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* El blanco y negro unifica dos fotos tomadas en condiciones distintas. */
+  filter: grayscale(1) contrast(1.08);
+}
+
+/* Marcador mientras no hay fotografía: la inicial sobre el degradado. */
+.portraitPlaceholder {
+  composes: portrait;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(4rem, 12vw, 8rem);
+  color: rgba(255, 255, 255, 0.06);
+  filter: none;
+}
+
+.portraitScrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(5, 11, 20, 0) 45%, rgba(5, 11, 20, 0.92) 100%);
+  pointer-events: none;
+}
+
+.portraitCaption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0 30px 30px;
+}
+
+.role {
+  font-family: var(--font-display);
+  font-size: 12px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-bottom: 10px;
+}
+
+.name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: #ffffff;
+  font-size: clamp(2rem, 3.6vw, 2.8rem);
+  line-height: 1;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.bio {
+  font-size: 16px;
+  color: var(--color-text-muted);
+  margin: 24px 0 0;
+}
+
+.credentials {
+  font-size: 13px;
+  color: var(--color-text-dim);
+  margin: 10px 0 0;
+  font-family: var(--font-display);
+}
+
+@media (max-width: 860px) {
+  .partners {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .partnerOffset {
+    margin-top: 0;
+  }
+
+  .heading {
+    font-size: clamp(1.7rem, 7.5vw, 2.3rem);
+    max-width: none;
+  }
+}

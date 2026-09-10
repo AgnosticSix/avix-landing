@@ -1,0 +1,145 @@
+/**
+ * Estilos globales y tokens de diseño.
+ *
+ * Los tokens recogen los valores que el prototipo original repetía literalmente
+ * en cada estilo en línea. Cualquier color o medida nueva debe declararse aquí
+ * antes de usarse en un módulo CSS.
+ */
+
+:root {
+  /* Superficies */
+  --color-bg: #050b14;
+  --color-surface: rgba(0, 24, 48, 0.35);
+  --color-border: rgba(255, 255, 255, 0.14);
+  --color-border-soft: rgba(255, 255, 255, 0.08);
+
+  /* Texto */
+  --color-text: #dce5ec;
+  --color-text-muted: #c7d3de;
+  --color-text-dim: #8fa3b5;
+  --color-text-faint: #5f7385;
+
+  /* Marca */
+  --color-accent: #00bcd4;
+  --color-accent-bright: #7fe3f0;
+  --color-accent-glow: #00d1ff;
+  --color-copper: #cd7f32;
+
+  /* Composición.
+     `--content-max-width` es el ancho ÚTIL del contenido: los contenedores le
+     suman el relleno lateral, de modo que la columna de texto mide siempre lo
+     mismo con independencia del `box-sizing`. */
+  --content-max-width: 1220px;
+  --content-padding: 32px;
+  --content-padding-mobile: 20px;
+  --nav-height: 72px;
+  --nav-height-mobile: 64px;
+  --radius-sm: 9px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+
+  /* Tipografía */
+  --font-body: var(--font-inter), sans-serif;
+  --font-display: var(--font-space-grotesk), sans-serif;
+
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--color-accent-bright);
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-bg);
+}
+
+input,
+select,
+textarea,
+button {
+  font-family: var(--font-body);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-text-faint);
+}
+
+/* El marcador nativo de <details> se sustituye por el icono «+» del diseño. */
+details > summary {
+  list-style: none;
+}
+
+details > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Foco visible y coherente en toda la página, sin depender del anillo del UA. */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/**
+ * Respeto por `prefers-reduced-motion`.
+ *
+ * El fondo 3D y las animaciones decorativas se desactivan desde JavaScript
+ * (ver `usePrefersReducedMotion`); aquí se neutraliza todo lo puramente CSS.
+ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+@keyframes fogDriftA {
+  from {
+    transform: translate(-7%, -3%) scale(1);
+  }
+  to {
+    transform: translate(6%, 4%) scale(1.12);
+  }
+}
+
+@keyframes fogDriftB {
+  from {
+    transform: translate(5%, 3%) scale(1.1);
+  }
+  to {
+    transform: translate(-6%, -4%) scale(1);
+  }
+}

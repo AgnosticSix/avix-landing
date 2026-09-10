@@ -1,0 +1,34 @@
+/**
+ * Aparición al entrar en pantalla.
+ *
+ * El estado inicial (oculto y desplazado) lo pone esta clase; `useRevealOnScroll`
+ * sólo añade `data-revealed`. Si JavaScript no llega a ejecutarse el contenido
+ * quedaría invisible, así que la regla `@media (scripting: none)` lo muestra —
+ * el contenido nunca depende del efecto para ser legible.
+ */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0s),
+    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0s);
+}
+
+.reveal[data-revealed='true'] {
+  opacity: 1;
+  transform: none;
+}
+
+@media (scripting: none) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}

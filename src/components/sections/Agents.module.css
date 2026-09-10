@@ -1,0 +1,256 @@
+.section {
+  padding: 110px 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 32, 64, 0),
+    rgba(0, 32, 64, 0.35) 18%,
+    rgba(0, 32, 64, 0.35) 82%,
+    rgba(0, 32, 64, 0)
+  );
+}
+
+.heading {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: #ffffff;
+  font-size: clamp(2rem, 4.4vw, 3.4rem);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  margin: 22px 0 0;
+  max-width: 24ch;
+  text-wrap: balance;
+}
+
+.split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(32px, 6vw, 96px);
+  margin-top: 56px;
+  align-items: start;
+}
+
+.lead {
+  color: #ffffff;
+  font-size: 19px;
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 500;
+}
+
+.support {
+  color: var(--color-text-muted);
+  font-size: 17px;
+  margin: 14px 0 0;
+}
+
+.listLabel {
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--color-text-dim);
+  margin: 40px 0 16px;
+}
+
+.tasks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 24px;
+}
+
+.task {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  font-size: 15px;
+  color: var(--color-text-muted);
+}
+
+.taskDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  flex: none;
+  /* Alinea el punto con la altura de la x, no con la línea base. */
+  transform: translateY(-2px);
+}
+
+.taskDotEscalates {
+  composes: taskDot;
+  background: var(--color-copper);
+}
+
+.pullQuote {
+  color: #ffffff;
+  font-size: 17px;
+  margin: 36px 0 0;
+  font-family: var(--font-display);
+  font-weight: 500;
+  border-left: 2px solid var(--color-copper);
+  padding-left: 18px;
+}
+
+.flow {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.flowStep {
+  border: 1px solid rgba(0, 188, 212, 0.35);
+  border-radius: 16px;
+  background: rgba(5, 11, 20, 0.55);
+  padding: 22px 24px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 18px;
+  align-items: center;
+}
+
+.flowStepHandsOff {
+  composes: flowStep;
+  border-color: rgba(205, 127, 50, 0.55);
+  background: rgba(205, 127, 50, 0.06);
+}
+
+.flowIndex {
+  font-family: var(--font-display);
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  color: var(--color-accent);
+}
+
+.flowIndexHandsOff {
+  composes: flowIndex;
+  color: var(--color-copper);
+}
+
+.flowTitle {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: #ffffff;
+  font-size: 18px;
+}
+
+.flowDetail {
+  font-size: 14px;
+  color: var(--color-text-dim);
+  margin-top: 4px;
+}
+
+.boundariesHeading {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: #ffffff;
+  font-size: clamp(1.9rem, 4vw, 3rem);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  margin: 96px 0 0;
+  max-width: 24ch;
+  text-wrap: balance;
+}
+
+.boundariesPanel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(32px, 6vw, 96px);
+  margin-top: 72px;
+  padding: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  background: rgba(5, 11, 20, 0.5);
+  align-items: start;
+}
+
+.boundariesTitle {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: #ffffff;
+  font-size: clamp(1.5rem, 2.6vw, 2rem);
+  line-height: 1.15;
+  margin: 0;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.boundariesIntro {
+  color: var(--color-text-dim);
+  font-size: 16px;
+  margin: 18px 0 0;
+}
+
+.boundariesClosing {
+  font-family: var(--font-display);
+  font-weight: 500;
+  color: var(--color-accent);
+  font-size: 17px;
+  margin: 32px 0 0;
+}
+
+.boundaryList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.boundary {
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 15px;
+  color: var(--color-text-muted);
+  display: flex;
+  gap: 14px;
+}
+
+.boundaryCritical {
+  composes: boundary;
+  color: #ffffff;
+}
+
+.boundaryIndex {
+  color: var(--color-accent);
+  font-family: var(--font-display);
+  font-size: 12px;
+  min-width: 18px;
+}
+
+.boundaryIndexCritical {
+  composes: boundaryIndex;
+  color: var(--color-copper);
+}
+
+@media (max-width: 860px) {
+  .split,
+  .boundariesPanel {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .tasks {
+    grid-template-columns: 1fr;
+  }
+
+  .boundariesPanel {
+    padding: 24px;
+  }
+
+  .flow {
+    flex-direction: column;
+  }
+
+  .heading,
+  .boundariesHeading {
+    font-size: clamp(1.7rem, 7.5vw, 2.3rem);
+    max-width: none;
+  }
+}

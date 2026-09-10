@@ -1,0 +1,51 @@
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  transition: opacity 0.7s ease;
+  color: #ffffff;
+}
+
+.loader[data-state='fading'] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loader[data-state='done'] {
+  display: none;
+}
+
+/**
+ * Sin JavaScript la cortina nunca llega a `data-state='done'` —ese estado sólo
+ * lo alcanza un efecto de cliente— y taparía la página entera: es una capa
+ * opaca a pantalla completa. Misma salvaguarda que `Reveal.module.css`.
+ */
+@media (scripting: none) {
+  .loader {
+    display: none;
+  }
+}
+
+.tagline {
+  font-family: var(--font-display);
+  font-size: 12px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--color-text-dim);
+}
+
+.percent {
+  font-family: var(--font-display);
+  font-size: 52px;
+  font-weight: 700;
+  color: var(--color-accent);
+  line-height: 1;
+  /* Evita que el ancho baile entre «9%» y «100%». */
+  font-variant-numeric: tabular-nums;
+}

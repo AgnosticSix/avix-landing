@@ -1,0 +1,102 @@
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  /* `background`, `border-color` y `backdrop-filter` los escribe useScrollScene. */
+  transition:
+    background 0.4s ease,
+    border-color 0.4s ease;
+}
+
+.inner {
+  max-width: calc(var(--content-max-width) + var(--content-padding) * 2);
+  margin: 0 auto;
+  padding: 0 var(--content-padding);
+  height: var(--nav-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  color: #ffffff;
+}
+
+.brandTag {
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--color-text-dim);
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.link {
+  color: var(--color-text-muted);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+/**
+ * CTA de la barra. Arranca colapsado y sin ocupar espacio; `useScrollScene` lo
+ * despliega cuando el CTA del hero sale de pantalla.
+ */
+.cta {
+  color: var(--color-bg);
+  background: var(--color-accent);
+  font-weight: 600;
+  font-size: 13px;
+  padding: 10px 0;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
+  max-width: 0;
+  margin-left: -28px;
+  overflow: hidden;
+  transition:
+    opacity 0.35s ease,
+    transform 0.35s ease,
+    max-width 0.45s ease,
+    padding 0.45s ease,
+    margin 0.45s ease;
+}
+
+.cta:hover {
+  background: var(--color-accent-bright);
+  color: var(--color-bg);
+}
+
+@media (max-width: 1100px) {
+  .brandTag {
+    display: none;
+  }
+
+  .link {
+    display: none;
+  }
+}
+
+@media (max-width: 860px) {
+  .inner {
+    max-width: calc(var(--content-max-width) + var(--content-padding-mobile) * 2);
+    padding: 0 var(--content-padding-mobile);
+    height: var(--nav-height-mobile);
+    gap: 8px 12px;
+  }
+}

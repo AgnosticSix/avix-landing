@@ -1,0 +1,117 @@
+/* Todas las capas del fondo son decorativas: fijas, sin eventos y bajo el contenido. */
+.layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Halos de color en las esquinas: dan profundidad al azul plano del fondo. */
+.gradients {
+  composes: layer;
+  background:
+    radial-gradient(900px 600px at 82% -10%, rgba(0, 188, 212, 0.1), transparent 65%),
+    radial-gradient(1100px 700px at -10% 108%, rgba(0, 32, 64, 0.55), transparent 60%);
+}
+
+.neural {
+  composes: layer;
+  width: 100%;
+  height: 100%;
+  opacity: 0.62;
+  filter: blur(0.6px);
+  transform-origin: 50% 50%;
+  /* El bucle de scroll escribe `transform` en cada fotograma. */
+  will-change: transform;
+}
+
+/* Oscurecimiento central que separa el isotipo 3D del texto que va encima. */
+.depthSmoke {
+  composes: layer;
+  overflow: hidden;
+  background: radial-gradient(
+    70% 60% at 50% 48%,
+    rgba(5, 11, 20, 0.78) 0%,
+    rgba(5, 11, 20, 0.55) 42%,
+    rgba(5, 11, 20, 0.12) 78%,
+    transparent 100%
+  );
+}
+
+/* Niebla en primer plano: va por encima del canvas (z-index 40) pero bajo la barra. */
+.fog {
+  composes: layer;
+  z-index: 40;
+  overflow: hidden;
+}
+
+.fogBlob {
+  position: absolute;
+  filter: blur(40px);
+}
+
+.fogBlobA {
+  composes: fogBlob;
+  left: -25%;
+  top: -30%;
+  width: 80%;
+  height: 80%;
+  background: radial-gradient(closest-side, rgba(10, 26, 44, 0.5), transparent 70%);
+  animation: fogDriftA 34s ease-in-out infinite alternate;
+}
+
+.fogBlobB {
+  composes: fogBlob;
+  right: -25%;
+  bottom: -30%;
+  width: 85%;
+  height: 85%;
+  background: radial-gradient(closest-side, rgba(4, 16, 30, 0.55), transparent 70%);
+  animation: fogDriftB 28s ease-in-out infinite alternate;
+}
+
+.smokeBlobA {
+  position: absolute;
+  left: 10%;
+  top: 12%;
+  width: 60%;
+  height: 60%;
+  background: radial-gradient(closest-side, rgba(8, 18, 32, 0.75), transparent 72%);
+  filter: blur(48px);
+  animation: fogDriftB 40s ease-in-out infinite alternate;
+}
+
+.smokeBlobB {
+  position: absolute;
+  right: 8%;
+  bottom: 10%;
+  width: 58%;
+  height: 58%;
+  background: radial-gradient(closest-side, rgba(4, 12, 24, 0.7), transparent 72%);
+  filter: blur(48px);
+  animation: fogDriftA 36s ease-in-out infinite alternate;
+}
+
+/* Viñeta que cierra los bordes. */
+.vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 95% at 50% 42%, transparent 52%, rgba(2, 5, 10, 0.6) 100%);
+}
+
+/* Grano fino: rompe el bandeado de los degradados en pantallas de 8 bits. */
+.grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.045;
+  mix-blend-mode: overlay;
+  background-image: url('/noise.svg');
+}
+
+.canvas {
+  composes: layer;
+  width: 100%;
+  height: 100%;
+  /* El bucle de scroll escribe `opacity` y `filter` en cada fotograma. */
+  will-change: opacity;
+}
